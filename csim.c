@@ -179,6 +179,7 @@ void access_data(mem_addr_t addr) {
     if(size == 0){
         cache[sBits][0].tag = tBits;
         cache[sBits][0].valid = 1;
+        size++;
     }
     // unfull set -- add to the tail
     else if(size < E){
