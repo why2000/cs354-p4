@@ -174,20 +174,20 @@ void access_data(mem_addr_t addr) {
     miss_cnt++; // set count
     int head = cache[sBits][0].head;
     int tail = cache[sBits][0].tail;
+    int size = cache[sBits][0].size;
     // unused set
-    if(cache[sBits][0].size == 0){
+    if(size == 0){
         cache[sBits][0].tag = tBits;
         cache[sBits][0].valid = 1;
-        cache[sBits][0].size++;
+        cache[sBits][0].size = size + 1;
     }
     // unfull set -- add to the tail
-    else if(cache[sBits][0].size < E){
-        int size = cache[sBits][0].size;
+    else if(size < E){
         cache[sBits][size].tag = tBits;
         cache[sBits][size].valid = 1;
         cache[sBits][tail].next = size;
         cache[sBits][size].last = tail;
-        cache[sBits][0].size++;
+        cache[sBits][0].size = size + 1;
     }
     else{
         evict_cnt++;
