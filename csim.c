@@ -132,10 +132,8 @@ void free_cache() {
  */                    
 void access_data(mem_addr_t addr) {      
     int t = 64-b-s;
-    mem_addr_t bMask = ((mem_addr_t)1 << (b)) - 1;
     mem_addr_t sMask = ((mem_addr_t)1 << (s)) - 1;
     mem_addr_t tMask = ((mem_addr_t)1 << (t)) - 1;
-    mem_addr_t bBits = addr & bMask;
     int sBits = (addr >> b) & sMask;
     mem_addr_t tBits = (addr >> (b+s)) & tMask;
     // Here by using queue, every action only costs O(E) instead of O(E^2)
@@ -144,8 +142,8 @@ void access_data(mem_addr_t addr) {
     for(int i = 0; i < E; i++){
         if(cache[sBits][i].tag == tBits && cache[sBits][i].valid == 1){
             hit_cnt++; // set count
-            head = cache[sBits][0].head;
-            tail = cache[sBits][0].tail;
+            int head = cache[sBits][0].head;
+            int tail = cache[sBits][0].tail;
             if(i == tail) return; // already most recently used
             if(i == head){
                 // head only case
@@ -174,9 +172,9 @@ void access_data(mem_addr_t addr) {
 
     // not cached
     miss_cnt++; // set count
-    size = cache[sBits][0].size;
-    head = cache[sBits][0].head;
-    tail = cache[sBits][0].tail;
+    int size = cache[sBits][0].size;
+    int head = cache[sBits][0].head;
+    int tail = cache[sBits][0].tail;
     // unused set
     if(size == 0){
         cache[sBits][0].tag = tBits;
@@ -201,11 +199,6 @@ void access_data(mem_addr_t addr) {
         cache[sBits][head].next = -1;
         cache[sBits][0].last = head;
     }
-
-    
-    
-
-
 
 }
   
