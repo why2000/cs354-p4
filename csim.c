@@ -62,6 +62,14 @@ typedef struct cache_line {
     char valid;
     mem_addr_t tag;
     //Add a data member as needed by your implementation for LRU tracking.
+    //Here I want to implement a cicular array based linked list as a queue
+    //This could be done by modifying the cache_set_t but it is not allowed
+    //So I have to put head and tail here only in the first element
+    int size;
+    int head; // only used in the first element, indicating the head
+    int tail; // only used in the first element, indicating the tail
+    int next; // linked list based on cicular array, -1 means tail
+    int last; // linked list based on cicular array, -1 means head
 } cache_line_t;
 
 //Type cache_set_t: Use when dealing with cache sets
@@ -74,20 +82,47 @@ typedef cache_set_t* cache_t;
 // Create the cache (i.e., pointer var) we're simulating.
 cache_t cache;  
 
-/* TODO - COMPLETE THIS FUNCTION
+/* DONE - COMPLETE THIS FUNCTION
  * init_cache:
  * Allocates the data structure for a cache with S sets and E lines per set.
  * Initializes all valid bits and tags with 0s.
  */                    
 void init_cache() {          
+    B = 1<<b;
+    S = 1<<s;
+    cache = (cache_set_t*)malloc(sizeof(cache_set_t)*S)
+    for(int i = 0; i < S; i++){
+        cache[i] = (cache_line_t*)malloc(sizeof(cache_line_t)*E);
+        for(int j = 0; j < E; j++){
+            cache[i][j].valid = 0;
+            cache[i][j].tag = 0;
+            if(j == 0){
+                cache[i][j].head = 0;
+                cache[i][j].tail = 0;
+                cache[i][j].size = 0;
+                cache[i][j].next = -1;
+                cache[i][j].last = -1;
+            }
+        }
+    }
 }
   
 
-/* TODO - COMPLETE THIS FUNCTION 
+/* DONE - COMPLETE THIS FUNCTION 
  * free_cache:
  * Frees all heap allocated memory used by the cache.
  */                    
 void free_cache() {             
+    for(int i = 0; i < S; i++){
+        for(int j = 0; j < E; j++){
+            free(cache[i][j]);
+            cache[i][j] = NULL;
+        }
+        free(cache[i]);
+        cache[i] = NULL;
+    }
+    free(cache);
+    cache = NULL;
 }
    
    
@@ -100,6 +135,82 @@ void free_cache() {
  * If a line is evicted, increment evict_cnt
  */                    
 void access_data(mem_addr_t addr) {      
+    int t = 64-b-s;
+    mem_addr_t bMask = ((mem_addr_t)1 << (b)) - 1;
+    mem_addr_t sMask = ((mem_addr_t)1 << (s)) - 1;
+    mem_addr_t tMask = ((mem_addr_t)1 << (t)) - 1;
+    mem_addr_t bBits = addr & bMask;
+    int sBits = (addr >> b) & sMask;
+    mem_addr_t tBits = (addr >> (b+s)) & tMask;
+    // Here by using queue, every action only costs O(E) instead of O(E^2)
+
+    // checking if is cached
+    for(int i = 0; i < E; i++){
+        if(cache[sBits][i].tag == tBits && cache[sBits][i].valid == 1){
+            hit_cnt++; // set count
+            head = cache[sBits][0].head;
+            tail = cache[sBits][0].tail;
+            if(i == tail) return; // already most recently used
+            if(i == head){
+                // head only case
+                if(cache[sBits][i].next == -1) return;
+                else{
+                    // change head
+                    cache[sBits][0].head = cache[sBits][head].next;
+                    cache[sBits][cache[sBits][head].next].last = -1;
+                }
+            }
+            else{
+                // change link
+                cache[sBits][cache[sBits][i].last].next =\
+                    cache[sBits][i].next;
+                cache[sBits][cache[sBits][i].next].last = \
+                    cache[sBits][i].last;
+            }
+            // change tail
+            cache[sBits][tail].next = i;
+            cache[sBits][i].last = tail;
+            cache[sBits][i].next = -1;
+            cache[sBits][0].tail = i;
+            return;
+        }
+    }
+
+    // not cached
+    miss_cnt++; // set count
+    size = cache[sBits][0].size;
+    head = cache[sBits][0].head;
+    tail = cache[sBits][0].tail;
+    // unused set
+    if(size == 0){
+        cache[sBits][0].tag = tBits;
+        cache[sBits][0].valid = 1;
+    }
+    // unfull set -- add to the tail
+    else if(size < E){
+        cache[sBits][size].tag = tBits;
+        cache[sBits][size].valid = 1;
+        cache[sBits][tail].next = size;
+        cache[sBits][size].last = tail;
+        size++;
+    }
+    else{
+        cache[sBits][head].tag = tBits;
+        // change head
+        cache[sBits][cache[sBits][head].next].last = -1;
+        cache[sBits][0].head = cache[sBits][head].next;
+        // change tail
+        cache[sBits][tail].next = head;
+        cache[sBits][head].last = tail
+        cache[sBits][head].next = -1;
+        cache[sBits][0].last = head;
+    }
+
+    
+    
+
+
+
 }
   
   
@@ -131,10 +242,17 @@ void replay_trace(char* trace_fn) {
             if (verbosity)
                 printf("%c %llx,%u ", buf[1], addr, len);
 
-            // TODO - MISSING CODE
+            // DONE - MISSING CODE
             // GIVEN: 1. addr has the address to be accessed
             //        2. buf[1] has type of acccess(S/L/M)
             // call access_data function here depending on type of access
+            if(buf[1] == 'M'){
+                access_data(addr);
+                access_data(addr);
+            }
+            else{
+                access_data(addr);
+            }
 
             if (verbosity)
                 printf("\n");
