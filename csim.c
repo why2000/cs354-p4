@@ -90,7 +90,7 @@ cache_t cache;
 void init_cache() {          
     B = 1<<b;
     S = 1<<s;
-    cache = (cache_set_t*)malloc(sizeof(cache_set_t)*S)
+    cache = (cache_set_t*)malloc(sizeof(cache_set_t)*S);
     for(int i = 0; i < S; i++){
         cache[i] = (cache_line_t*)malloc(sizeof(cache_line_t)*E);
         for(int j = 0; j < E; j++){
@@ -114,10 +114,6 @@ void init_cache() {
  */                    
 void free_cache() {             
     for(int i = 0; i < S; i++){
-        for(int j = 0; j < E; j++){
-            free(cache[i][j]);
-            cache[i][j] = NULL;
-        }
         free(cache[i]);
         cache[i] = NULL;
     }
