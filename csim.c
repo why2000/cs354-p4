@@ -200,7 +200,7 @@ void access_data(mem_addr_t addr) {
         cache[sBits][tail].next = head;
         cache[sBits][head].last = tail;
         cache[sBits][head].next = -1;
-        cache[sBits][0].last = head;
+        cache[sBits][0].tail = head;
     }
 
 }
