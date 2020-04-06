@@ -95,13 +95,13 @@ void init_cache() {
         cache[i] = (cache_line_t*)malloc(sizeof(cache_line_t)*E);
         for(int j = 0; j < E; j++){
             cache[i][j].valid = 0;
-            cache[i][j].tag = 0;
-            if(j == 0){
+            cache[i][j].tag = 0;            
+            cache[i][j].next = -1;
+            cache[i][j].last = -1;
+            if(j == 0){          
                 cache[i][j].head = 0;
                 cache[i][j].tail = 0;
                 cache[i][j].size = 0;
-                cache[i][j].next = -1;
-                cache[i][j].last = -1;
             }
         }
     }
