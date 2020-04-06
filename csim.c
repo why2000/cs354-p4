@@ -187,6 +187,7 @@ void access_data(mem_addr_t addr) {
         cache[sBits][size].valid = 1;
         cache[sBits][tail].next = size;
         cache[sBits][size].last = tail;
+        cache[sBits][0].tail = size;
         cache[sBits][0].size = size + 1;
     }
     else{
