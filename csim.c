@@ -115,7 +115,7 @@ void init_cache() {
 void free_cache() {             
     for(int i = 0; i < S; i++){
         free(cache[i]);
-        cache[i] = NULL;
+        // cache[i] = NULL;
     }
     free(cache);
     cache = NULL;
@@ -180,7 +180,7 @@ void access_data(mem_addr_t addr) {
         cache[sBits][0].tag = tBits;
         cache[sBits][0].valid = 1;
         cache[sBits][0].size = size + 1;
-    }
+    } 
     // unfull set -- add to the tail
     else if(size < E){
         cache[sBits][size].tag = tBits;
