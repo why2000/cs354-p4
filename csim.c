@@ -115,7 +115,7 @@ void init_cache() {
 void free_cache() {             
     for(int i = 0; i < S; i++){
         free(cache[i]);
-        // cache[i] = NULL;
+        cache[i] = NULL;
     }
     free(cache);
     cache = NULL;
@@ -189,18 +189,18 @@ void access_data(mem_addr_t addr) {
         cache[sBits][size].last = tail;
         cache[sBits][0].size = size + 1;
     }
-    else{
-        evict_cnt++;
-        cache[sBits][head].tag = tBits;
-        // change head
-        cache[sBits][cache[sBits][head].next].last = -1;
-        cache[sBits][0].head = cache[sBits][head].next;
-        // change tail
-        cache[sBits][tail].next = head;
-        cache[sBits][head].last = tail;
-        cache[sBits][head].next = -1;
-        cache[sBits][0].last = head;
-    }
+    // else{
+    //     evict_cnt++;
+    //     cache[sBits][head].tag = tBits;
+    //     // change head
+    //     cache[sBits][cache[sBits][head].next].last = -1;
+    //     cache[sBits][0].head = cache[sBits][head].next;
+    //     // change tail
+    //     cache[sBits][tail].next = head;
+    //     cache[sBits][head].last = tail;
+    //     cache[sBits][head].next = -1;
+    //     cache[sBits][0].last = head;
+    // }
 
 }
   
