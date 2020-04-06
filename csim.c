@@ -192,8 +192,8 @@ void access_data(mem_addr_t addr) {
     }
     else{
         evict_cnt++;
-        if(E == 1) return;
         cache[sBits][head].tag = tBits;
+        if(E == 1) return;
         // change head
         cache[sBits][cache[sBits][head].next].last = -1;
         cache[sBits][0].head = cache[sBits][head].next;
